@@ -10,9 +10,9 @@ import java.util.List;
 
 @Getter @Setter @ToString(callSuper = true)
 public class ScenarioAddedEvent extends HubEvent {
-    String name;
-    List<ScenarioCondition> conditions;
-    List<DeviceAction> actions;
+    private String name;
+    private List<ScenarioCondition> conditions;
+    private List<DeviceAction> actions;
 
     @Override
     public HubEventType getType() {

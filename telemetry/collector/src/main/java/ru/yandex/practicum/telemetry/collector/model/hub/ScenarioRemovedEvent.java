@@ -6,7 +6,7 @@ import lombok.ToString;
 
 @Getter @Setter @ToString(callSuper = true)
 public class ScenarioRemovedEvent extends HubEvent {
-    String name;
+    private String name;
 
     @Override
     public HubEventType getType() {

@@ -5,6 +5,7 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecordBase;
+import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Serializer;
 
 import java.io.ByteArrayOutputStream;
@@ -26,7 +27,7 @@ public class GeneralAvroSerializer implements Serializer<SpecificRecordBase> {
             }
             return out.toByteArray();
         } catch (IOException ex) {
-            throw new RuntimeException("Ошибка сериализации данных для топика [" + topic + "]", ex);
+            throw new SerializationException("Ошибка сериализации данных для топика [" + topic + "]", ex);
         }
     }
 }

@@ -6,9 +6,9 @@ import lombok.ToString;
 
 @Setter @Getter @ToString(callSuper = true)
 public class MotionSensorEvent extends SensorEvent {
-    int linkQuality;
-    boolean motion;
-    int voltage;
+    private int linkQuality;
+    private boolean motion;
+    private int voltage;
 
     @Override
     public SensorEventType getType() {
