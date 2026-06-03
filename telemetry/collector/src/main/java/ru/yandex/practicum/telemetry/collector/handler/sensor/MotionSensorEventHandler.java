@@ -21,7 +21,7 @@ public class MotionSensorEventHandler implements SensorEventHandler {
 
     @Override
     public SensorEventProto.PayloadCase getMessageType() {
-        return SensorEventProto.PayloadCase.SWITCH_SENSOR;
+        return SensorEventProto.PayloadCase.MOTION_SENSOR;
     }
 
     @Override
