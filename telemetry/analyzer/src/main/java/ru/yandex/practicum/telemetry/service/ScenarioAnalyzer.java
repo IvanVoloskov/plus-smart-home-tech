@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc;
@@ -40,15 +41,17 @@ public class ScenarioAnalyzer {
         }
     }
 
-    private boolean checkCondition(Condition condition, SensorsSnapshotAvro snapshot) {
-        Map<String, SensorStateAvro> sensorsState = snapshot.getSensorsState();
+    private boolean checkCondition(ScenarioCondition sc, SensorsSnapshotAvro snapshot) {
+        String sensorId = sc.getSensor().getId();
+        Condition condition = sc.getCondition();
 
-        return sensorsState.values().stream().anyMatch(state -> {
-            Object data = state.getData();
-            Integer sensorValue = extractValue(condition.getType(), data);
-            if (sensorValue == null) return false;
-            return compare(sensorValue, condition.getValue(), condition.getOperation());
-        });
+        SensorStateAvro state = snapshot.getSensorsState().get(sensorId);
+        if (state == null) return false;
+
+        Integer sensorValue = extractValue(condition.getType(), state.getData());
+        if (sensorValue == null) return false;
+
+        return compare(sensorValue, condition.getValue(), condition.getOperation());
     }
 
     private Integer extractValue(ConditionType type, Object data) {
@@ -81,10 +84,10 @@ public class ScenarioAnalyzer {
                 .setNanos(now.getNano())
                 .build();
 
-        for (Action action : scenario.getActions()) {
+        for (ScenarioAction sa : scenario.getActions()) {
+            Action action = sa.getAction();
             DeviceActionProto deviceAction = DeviceActionProto.newBuilder()
-                    .setType(ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto
-                            .valueOf(action.getType().name()))
+                    .setType(ActionTypeProto.valueOf(action.getType().name()))
                     .setValue(action.getValue() != null ? action.getValue() : 0)
                     .build();
 
@@ -95,6 +98,7 @@ public class ScenarioAnalyzer {
                     .setTimestamp(timestamp)
                     .build();
 
+            log.info("Отправляю действие {} для хаба {}", action.getType(), snapshot.getHubId());
             hubRouterClient.handleDeviceAction(request);
         }
     }

@@ -76,33 +76,68 @@ public class HubEventProcessor implements Runnable {
 
             scenario.setHubId(event.getHubId());
             scenario.setName(e.getName());
-
-            List<Condition> conditions = e.getConditions().stream()
-                    .map(c -> {
-                        Condition condition = new Condition();
-                        condition.setType(ConditionType.valueOf(c.getType().name()));
-                        condition.setOperation(ConditionOperation.valueOf(c.getOperation().name()));
-                        if (c.getValue() instanceof Integer v) {
-                            condition.setValue(v);
-                        }
-                        return conditionRepository.save(condition);
-                    }).toList();
-
-            List<Action> actions = e.getActions().stream()
-                    .map(a -> {
-                        Action action = new Action();
-                        action.setType(ActionType.valueOf(a.getType().name()));
-                        action.setValue(a.getValue());
-                        return actionRepository.save(action);
-                    }).toList();
-
-            scenario.setConditions(conditions);
-            scenario.setActions(actions);
             scenarioRepository.save(scenario);
 
-        } else if (payload instanceof ScenarioRemovedEventAvro e) {
-            scenarioRepository.findByHubIdAndName(event.getHubId(), e.getName())
-                    .ifPresent(scenarioRepository::delete);
+            // Удаляем старые условия и действия если сценарий уже существовал
+            if (scenario.getConditions() != null) scenario.getConditions().clear();
+            if (scenario.getActions() != null) scenario.getActions().clear();
+
+            for (ScenarioConditionAvro c : e.getConditions()) {
+                Sensor sensor = sensorRepository.findById(c.getSensorId())
+                        .orElseGet(() -> {
+                            Sensor s = new Sensor();
+                            s.setId(c.getSensorId());
+                            s.setHubId(event.getHubId());
+                            return sensorRepository.save(s);
+                        });
+
+                Condition condition = new Condition();
+                condition.setType(ConditionType.valueOf(c.getType().name()));
+                condition.setOperation(ConditionOperation.valueOf(c.getOperation().name()));
+                if (c.getValue() instanceof Integer v) {
+                    condition.setValue(v);
+                }
+                conditionRepository.save(condition);
+
+                ScenarioCondition sc = new ScenarioCondition();
+                ScenarioConditionId scId = new ScenarioConditionId();
+                scId.setScenarioId(scenario.getId());
+                scId.setSensorId(sensor.getId());
+                scId.setConditionId(condition.getId());
+                sc.setId(scId);
+                sc.setScenario(scenario);
+                sc.setSensor(sensor);
+                sc.setCondition(condition);
+                scenario.getConditions().add(sc);
+            }
+
+            for (DeviceActionAvro a : e.getActions()) {
+                Sensor sensor = sensorRepository.findById(a.getSensorId())
+                        .orElseGet(() -> {
+                            Sensor s = new Sensor();
+                            s.setId(a.getSensorId());
+                            s.setHubId(event.getHubId());
+                            return sensorRepository.save(s);
+                        });
+
+                Action action = new Action();
+                action.setType(ActionType.valueOf(a.getType().name()));
+                action.setValue(a.getValue());
+                actionRepository.save(action);
+
+                ScenarioAction sa = new ScenarioAction();
+                ScenarioActionId saId = new ScenarioActionId();
+                saId.setScenarioId(scenario.getId());
+                saId.setSensorId(sensor.getId());
+                saId.setActionId(action.getId());
+                sa.setId(saId);
+                sa.setScenario(scenario);
+                sa.setSensor(sensor);
+                sa.setAction(action);
+                scenario.getActions().add(sa);
+            }
+
+        scenarioRepository.save(scenario);
         }
     }
 }
