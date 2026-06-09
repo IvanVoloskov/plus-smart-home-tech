@@ -24,6 +24,12 @@ public class AnalyzerApplication {
         hubEventsThread.setName("HubEventHandlerThread");
         hubEventsThread.start();
 
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
         snapshotProcessor.start();
     }
 }
