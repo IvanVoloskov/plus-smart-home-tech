@@ -28,9 +28,7 @@ public class ClimateSensorEventHandler implements SensorEventHandler {
         SensorEventAvro avro = SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()))
+                .setTimestamp(Instant.now())
                 .setPayload(ClimateSensorAvro.newBuilder()
                         .setTemperatureC(event.getClimateSensor().getTemperatureC())
                         .setCo2Level(event.getClimateSensor().getCo2Level())

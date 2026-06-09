@@ -31,9 +31,7 @@ public class TemperatureSensorEventHandler implements SensorEventHandler {
         SensorEventAvro avro = SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()))
+                .setTimestamp(Instant.now())
                 .setPayload(TemperatureSensorAvro.newBuilder()
                         .setTemperatureC(event.getTemperatureSensor().getTemperatureC())
                         .setTemperatureF(event.getTemperatureSensor().getTemperatureF())

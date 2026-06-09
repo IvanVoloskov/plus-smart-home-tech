@@ -29,9 +29,7 @@ public class MotionSensorEventHandler implements SensorEventHandler {
         SensorEventAvro avro = SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(
-                        event.getTimestamp().getSeconds(),
-                        event.getTimestamp().getNanos()))
+                .setTimestamp(Instant.now())
                 .setPayload(MotionSensorAvro.newBuilder()
                         .setLinkQuality(event.getMotionSensor().getLinkQuality())
                         .setMotion(event.getMotionSensor().getMotion())
