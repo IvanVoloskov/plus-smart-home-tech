@@ -28,7 +28,9 @@ public class LightSensorEventHandler implements SensorEventHandler {
         SensorEventAvro avro = SensorEventAvro.newBuilder()
                 .setId(event.getId())
                 .setHubId(event.getHubId())
-                .setTimestamp(Instant.now())
+                .setTimestamp(Instant.ofEpochSecond(
+                        event.getTimestamp().getSeconds(),
+                        event.getTimestamp().getNanos()))
                 .setPayload(LightSensorAvro.newBuilder()
                         .setLinkQuality(event.getLightSensor().getLinkQuality())
                         .setLuminosity(event.getLightSensor().getLuminosity())
