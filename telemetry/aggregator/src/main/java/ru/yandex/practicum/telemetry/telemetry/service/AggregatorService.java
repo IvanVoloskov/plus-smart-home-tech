@@ -30,9 +30,6 @@ public class AggregatorService {
             if (!oldState.getTimestamp().isBefore(event.getTimestamp())) {
                 return Optional.empty();
             }
-            if (oldState.getData().equals(event.getPayload())) {
-                return Optional.empty();
-            }
         }
 
         SensorStateAvro newState = SensorStateAvro.newBuilder()

@@ -87,6 +87,7 @@ public class ScenarioAnalyzer {
         for (ScenarioAction sa : scenario.getActions()) {
             Action action = sa.getAction();
             DeviceActionProto deviceAction = DeviceActionProto.newBuilder()
+                    .setSensorId(sa.getSensor().getId())
                     .setType(ActionTypeProto.valueOf(action.getType().name()))
                     .setValue(action.getValue() != null ? action.getValue() : 0)
                     .build();
