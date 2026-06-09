@@ -29,7 +29,7 @@ public class AnalyzerApplication {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        
+
         snapshotProcessor.start();
     }
 }
