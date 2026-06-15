@@ -29,6 +29,7 @@ public class ScenarioAnalyzer {
 
     public void analyze(SensorsSnapshotAvro snapshot) {
         List<Scenario> scenarios = scenarioRepository.findByHubId(snapshot.getHubId());
+        log.info("analyze: hub={}, найдено сценариев={}", snapshot.getHubId(), scenarios.size());
 
         for (Scenario scenario : scenarios) {
             boolean allConditionsMet = scenario.getConditions().stream()
@@ -50,6 +51,9 @@ public class ScenarioAnalyzer {
 
         Integer sensorValue = extractValue(condition.getType(), state.getData());
         if (sensorValue == null) return false;
+
+        log.info("  условие sensor={} type={} op={} value={} -> sensorValue={}",
+                sensorId, condition.getType(), condition.getOperation(), condition.getValue(), sensorValue);
 
         return compare(sensorValue, condition.getValue(), condition.getOperation());
     }

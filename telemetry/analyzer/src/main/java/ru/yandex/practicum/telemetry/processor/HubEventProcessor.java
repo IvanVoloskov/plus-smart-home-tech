@@ -26,7 +26,7 @@ public class HubEventProcessor implements Runnable {
     private final ActionRepository actionRepository;
 
     private static final String HUBS_TOPIC = "telemetry.hubs.v1";
-    private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
+    private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(100);
 
     @Override
     public void run() {
@@ -138,6 +138,9 @@ public class HubEventProcessor implements Runnable {
             }
 
         scenarioRepository.save(scenario);
+
+            log.info("Сохранён сценарий '{}' hub={}, conditions={}, actions={}",
+                    scenario.getName(), event.getHubId(), scenario.getConditions().size(), scenario.getActions().size());
         }
     }
 }
