@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.TemperatureSensorProto;
@@ -18,7 +19,8 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class TemperatureSensorEventHandler implements SensorEventHandler {
     private final Producer<String, SpecificRecordBase> producer;
-    private static final String SENSORS_TOPIC = "telemetry.sensors.v1";
+    @Value("${aggregator.kafka.sensors-topic}")
+    private String sensorsTopic;
 
 
     @Override
@@ -39,6 +41,6 @@ public class TemperatureSensorEventHandler implements SensorEventHandler {
                         .setTemperatureF(event.getTemperatureSensor().getTemperatureF())
                         .build())
                 .build();
-        producer.send(new ProducerRecord<>(SENSORS_TOPIC, event.getId(), avro));
+        producer.send(new ProducerRecord<>(sensorsTopic, event.getId(), avro));
     }
 }

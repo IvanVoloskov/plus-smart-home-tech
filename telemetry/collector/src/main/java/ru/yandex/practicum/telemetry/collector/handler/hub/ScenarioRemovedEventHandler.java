@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
@@ -18,7 +19,8 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class ScenarioRemovedEventHandler implements HubEventHandler {
     private final Producer<String, SpecificRecordBase> producer;
-    private static final String HUBS_TOPIC = "telemetry.hubs.v1";
+    @Value("${aggregator.kafka.hubs-topic}")
+    private String hubsTopic;
 
     @Override
     public HubEventProto.PayloadCase getMessageType() {
@@ -36,6 +38,6 @@ public class ScenarioRemovedEventHandler implements HubEventHandler {
                         .setName(event.getScenarioRemoved().getName())
                         .build())
                 .build();
-        producer.send(new ProducerRecord<>(HUBS_TOPIC, event.getHubId(), avro));
+        producer.send(new ProducerRecord<>(hubsTopic, event.getHubId(), avro));
     }
 }

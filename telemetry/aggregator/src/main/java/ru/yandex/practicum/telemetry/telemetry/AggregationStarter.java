@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.common.errors.WakeupException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
@@ -28,7 +29,8 @@ public class AggregationStarter {
 
     private static final String SENSORS_TOPIC = "telemetry.sensors.v1";
     private static final String SNAPSHOTS_TOPIC = "telemetry.snapshots.v1";
-    private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
+    @Value("${aggregator.kafka.consume-timeout-ms}")
+    private long consumeTimeoutMs;
 
     public void start() {
         try {
@@ -36,7 +38,7 @@ public class AggregationStarter {
 
             while (true) {
                 ConsumerRecords<String, SensorEventAvro> records =
-                        consumer.poll(CONSUME_ATTEMPT_TIMEOUT);
+                        consumer.poll(Duration.ofMillis(consumeTimeoutMs));
 
                 for (ConsumerRecord<String, SensorEventAvro> record : records) {
                     SensorEventAvro event = record.value();

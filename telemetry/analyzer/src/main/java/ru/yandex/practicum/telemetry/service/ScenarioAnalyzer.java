@@ -104,7 +104,12 @@ public class ScenarioAnalyzer {
                     .build();
 
             log.info("Отправляю действие {} для хаба {}", action.getType(), snapshot.getHubId());
-            hubRouterClient.handleDeviceAction(request);
+            try {
+                hubRouterClient.handleDeviceAction(request);
+            } catch (Exception ex) {
+                log.error("Ошибка отправки действия в hub-router, сценарий '{}', hub {}",
+                        scenario.getName(), snapshot.getHubId(), ex);
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 import ru.yandex.practicum.telemetry.model.*;
@@ -26,7 +27,8 @@ public class HubEventProcessor implements Runnable {
     private final ActionRepository actionRepository;
 
     private static final String HUBS_TOPIC = "telemetry.hubs.v1";
-    private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(100);
+    @Value("${aggregator.kafka.consume-timeout-ms}")
+    private long consumeTimeoutMs;
 
     @Override
     public void run() {
@@ -35,10 +37,11 @@ public class HubEventProcessor implements Runnable {
 
             while (true) {
                 ConsumerRecords<String, HubEventAvro> records =
-                        hubEventConsumer.poll(CONSUME_ATTEMPT_TIMEOUT);
+                        hubEventConsumer.poll(Duration.ofMillis(consumeTimeoutMs));
 
                 for (ConsumerRecord<String, HubEventAvro> record : records) {
                     HubEventAvro event = record.value();
+                    if (event == null) continue;
                     log.info("Получено событие хаба: {}", event.getHubId());
                     handleHubEvent(event);
                 }
