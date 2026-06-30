@@ -7,8 +7,25 @@ spring:
     config:
       discovery:
         enabled: true
-        serviceId: config-server
+        service-id: config-server
       fail-fast: true
       retry:
         useRandomPolicy: true
-        max-interval: 6000 
+        max-interval: 6000
+  kafka:
+    bootstrap-servers: localhost:9092
+  main:
+    web-application-type: none
+
+aggregator:
+  kafka:
+    sensors-topic: telemetry.sensors.v1
+    consume-timeout-ms: 1000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.uuid}
