@@ -17,7 +17,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class DeviceRemovedEventHandler implements HubEventHandler {
     private final Producer<String, SpecificRecordBase> producer;
-    @Value("${aggregator.kafka.hubs-topic}")
+    @Value("${collector.kafka.hubs-topic}")
     private String hubsTopic;
 
     @Override

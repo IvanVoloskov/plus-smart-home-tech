@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ScenarioAddedEventHandler implements HubEventHandler {
     private final Producer<String, SpecificRecordBase> producer;
-    @Value("${aggregator.kafka.hubs-topic}")
+    @Value("${collector.kafka.hubs-topic}")
     private String hubsTopic;
 
     @Override

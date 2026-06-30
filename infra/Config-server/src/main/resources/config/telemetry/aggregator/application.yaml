@@ -1,0 +1,13 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+  main:
+    web-application-type: none
+aggregator:
+  kafka:
+    sensors-topic: telemetry.sensors.v1
+    consume-timeout-ms: 1000
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

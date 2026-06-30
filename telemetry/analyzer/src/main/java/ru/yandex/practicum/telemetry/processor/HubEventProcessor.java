@@ -27,7 +27,7 @@ public class HubEventProcessor implements Runnable {
     private final ActionRepository actionRepository;
 
     private static final String HUBS_TOPIC = "telemetry.hubs.v1";
-    @Value("${aggregator.kafka.consume-timeout-ms}")
+    @Value("${analyzer.kafka.consume-timeout-ms}")
     private long consumeTimeoutMs;
 
     @Override
