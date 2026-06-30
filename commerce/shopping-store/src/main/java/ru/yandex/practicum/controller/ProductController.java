@@ -53,8 +53,8 @@ public class ProductController {
     }
 
     @PostMapping("/quantityState")
-    public boolean setProductQuantityState(@RequestParam UUID productId, @RequestParam QuantityState state) {
-        SetProductQuantityStateRequest request = new SetProductQuantityStateRequest(productId, state);
+    public boolean setProductQuantityState(@RequestParam UUID productId, @RequestParam QuantityState quantityState) {
+        SetProductQuantityStateRequest request = new SetProductQuantityStateRequest(productId, quantityState);
         return productService.setProductQuantityState(request);
     }
 
