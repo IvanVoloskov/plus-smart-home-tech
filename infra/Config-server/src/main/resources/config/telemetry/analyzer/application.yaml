@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/analyzer
     username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:GTNPower2003}
+    password: ${POSTGRES_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: none
