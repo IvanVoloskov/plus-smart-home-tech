@@ -28,7 +28,7 @@ public class ProductService {
             throw new ProductNotFoundException("Категория не может быть null");
         }
 
-        return productRepository.findByProductCategoryAndProductState(category, ProductState.ACTIVE, pageable);
+        return productRepository.findByProductCategory(category, pageable);
     }
 
     public ProductEntity getProduct(UUID productId) {

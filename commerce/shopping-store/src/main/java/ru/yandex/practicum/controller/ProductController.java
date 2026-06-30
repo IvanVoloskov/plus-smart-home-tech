@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.dto.ProductCategory;
 import ru.yandex.practicum.dto.ProductDto;
+import ru.yandex.practicum.dto.QuantityState;
 import ru.yandex.practicum.entity.ProductEntity;
 import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.SetProductQuantityStateRequest;
@@ -52,7 +53,8 @@ public class ProductController {
     }
 
     @PostMapping("/quantityState")
-    public boolean setProductQuantityState(@RequestBody SetProductQuantityStateRequest request) {
+    public boolean setProductQuantityState(@RequestParam UUID productId, @RequestParam QuantityState state) {
+        SetProductQuantityStateRequest request = new SetProductQuantityStateRequest(productId, state);
         return productService.setProductQuantityState(request);
     }
 
