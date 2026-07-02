@@ -6,8 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.ProductCategory;
+import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.dto.ProductState;
 import ru.yandex.practicum.dto.QuantityState;
+import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.SetProductQuantityStateRequest;
 import ru.yandex.practicum.entity.ProductEntity;
 import ru.yandex.practicum.exception.ProductNotFoundException;
@@ -22,22 +24,25 @@ import java.util.UUID;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public Page<ProductEntity> getProducts(ProductCategory category, Pageable pageable) {
+    public Page<ProductDto> getProducts(ProductCategory category, Pageable pageable) {
         if (category == null) {
-            throw new ProductNotFoundException("Категория не может быть null");
+            throw new IllegalArgumentException("Категория не может быть null");
         }
 
-        return productRepository.findByProductCategory(category, pageable);
+        return productRepository.findByProductCategory(category, pageable).map(productMapper::toDto);
     }
 
-    public ProductEntity getProduct(UUID productId) {
-        return productRepository.findById(productId).
-                orElseThrow(() -> new ProductNotFoundException("Продукт не найден с ID: " + productId));
+    public ProductDto getProduct(UUID productId) {
+        return productMapper.toDto(productRepository.findById(productId).
+                orElseThrow(() -> new ProductNotFoundException("Продукт не найден с ID: " + productId))
+                );
     }
 
     @Transactional
-    public ProductEntity createProduct(ProductEntity product) {
+    public ProductDto createProduct(ProductDto productDto) {
+        ProductEntity product = productMapper.toEntity(productDto);
         product.setProductId(null);
         if (product.getProductName() == null || product.getProductName().trim().isEmpty()) {
             throw new IllegalArgumentException("Название товара не может быть пустым");
@@ -51,11 +56,12 @@ public class ProductService {
         if (product.getQuantityState() == null) {
             product.setQuantityState(QuantityState.ENDED);
         }
-        return productRepository.save(product);
+        ProductEntity savedProduct = productRepository.save(product);
+        return productMapper.toDto(savedProduct);
     }
 
     @Transactional
-    public ProductEntity updateProduct(ProductEntity updatedProduct) {
+    public ProductDto updateProduct(ProductDto updatedProduct) {
         ProductEntity exists = productRepository.findById(updatedProduct.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("Товар не найден с ID: " + updatedProduct.getProductId()));
 
@@ -67,7 +73,7 @@ public class ProductService {
         exists.setProductState(updatedProduct.getProductState());
         exists.setPrice(updatedProduct.getPrice());
 
-        return productRepository.save(exists);
+        return productMapper.toDto(productRepository.save(exists));
     }
 
     @Transactional

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.dto.ProductCategory;
 import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.dto.QuantityState;
-import ru.yandex.practicum.entity.ProductEntity;
 import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.SetProductQuantityStateRequest;
 import ru.yandex.practicum.service.ProductService;
@@ -32,19 +31,17 @@ public class ProductController {
     @GetMapping
     public Page<ProductDto> getProducts(@RequestParam ProductCategory category,
                                         @PageableDefault(size = 20) Pageable pageable) {
-        return productService.getProducts(category, pageable).map(productMapper::toDto);
+        return productService.getProducts(category, pageable);
     }
 
     @PutMapping
     public ProductDto createProduct(@RequestBody ProductDto productDto) {
-        ProductEntity product = productService.createProduct(productMapper.toEntity(productDto));
-        return productMapper.toDto(product);
+        return productService.createProduct(productDto);
     }
 
     @PostMapping
     public ProductDto updateProduct(@RequestBody ProductDto productDto) {
-        ProductEntity product = productService.updateProduct(productMapper.toEntity(productDto));
-        return productMapper.toDto(product);
+        return productService.updateProduct(productDto);
     }
 
     @PostMapping("/removeProductFromStore")
@@ -60,7 +57,6 @@ public class ProductController {
 
     @GetMapping("/{productId}")
     public ProductDto getProduct(@PathVariable UUID productId) {
-        ProductEntity product = productService.getProduct(productId);
-        return productMapper.toDto(product);
+        return productService.getProduct(productId);
     }
 }

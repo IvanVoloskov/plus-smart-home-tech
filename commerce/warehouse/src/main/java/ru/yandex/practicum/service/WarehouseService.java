@@ -19,6 +19,8 @@ import ru.yandex.practicum.repository.WarehouseRepository;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +51,12 @@ public class WarehouseService {
             throw new ProductInShoppingCartLowQuantityInWarehouse("Корзина не может быть пустой");
         }
 
+        // Один запрос к БД вместо N
+        Map<UUID, WarehouseEntity> warehouseByProductId = repository
+                .findAllByProductIdIn(products.keySet())
+                .stream()
+                .collect(Collectors.toMap(WarehouseEntity::getProductId, Function.identity()));
+
         double totalWeight = 0;
         double totalVolume = 0;
         boolean hasFragile = false;
@@ -57,14 +65,17 @@ public class WarehouseService {
             UUID productId = entry.getKey();
             Long requiredQuantity = entry.getValue();
 
-            WarehouseEntity warehouseProduct = repository.findByProductId(productId)
-                    .orElseThrow(() -> new NoSpecifiedProductInWarehouseException("Товара из корзины нет на складе: "
-                            + productId));
+            WarehouseEntity warehouseProduct = warehouseByProductId.get(productId);
+            if (warehouseProduct == null) {
+                throw new NoSpecifiedProductInWarehouseException(
+                        "Товара из корзины нет на складе: " + productId);
+            }
 
             if (warehouseProduct.getQuantity() < requiredQuantity) {
                 throw new ProductInShoppingCartLowQuantityInWarehouse(
                         "Недостаточное количество товара: " + productId +
-                                ". Доступно: " + warehouseProduct.getQuantity() + ", Нужно: " + requiredQuantity);
+                                ". Доступно: " + warehouseProduct.getQuantity() +
+                                ", Нужно: " + requiredQuantity);
             }
 
             totalWeight += warehouseProduct.getWeight() * requiredQuantity;
