@@ -19,7 +19,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class TemperatureSensorEventHandler implements SensorEventHandler {
     private final Producer<String, SpecificRecordBase> producer;
-    @Value("${aggregator.kafka.sensors-topic}")
+    @Value("${collector.kafka.sensors-topic}")
     private String sensorsTopic;
 
 
