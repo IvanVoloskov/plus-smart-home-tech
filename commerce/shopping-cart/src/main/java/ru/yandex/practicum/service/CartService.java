@@ -25,6 +25,7 @@ public class CartService {
     private final CartMapper mapper;
     private final WarehouseFeignClient warehouseFeignClient;
 
+    @Transactional
     public ShoppingCartDto getShoppingCart(String username) {
         validateUser(username);
 
@@ -40,10 +41,6 @@ public class CartService {
 
         CartEntity cart = cartRepository.findByUsernameAndActiveTrue(username)
                 .orElseGet(() -> createNewCart(username));
-
-        if (!cart.isActive()) {
-            throw new NotAuthorizedUserException(String.format("Корзина пользователя %s неактивна", username));
-        }
 
         Map<UUID, Long> currentProducts = cart.getProducts();
         if (currentProducts == null) {
@@ -113,7 +110,7 @@ public class CartService {
         validateUser(username);
 
         CartEntity cart = cartRepository.findByUsernameAndActiveTrue(username)
-                .orElseThrow(() -> new NotAuthorizedUserException("Корзины не найдено у : " + username));
+                .orElseThrow(() -> new NoProductsInShoppingCartException("Корзины не найдено у : " + username));
 
         Map<UUID, Long> currentProducts = cart.getProducts();
         if (currentProducts == null || currentProducts.isEmpty()) {
