@@ -7,6 +7,7 @@ import ru.yandex.practicum.dto.ShoppingCartDto;
 import ru.yandex.practicum.entity.CartEntity;
 import ru.yandex.practicum.exception.NoProductsInShoppingCartException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
+import ru.yandex.practicum.feign.WarehouseFeignClient;
 import ru.yandex.practicum.mapper.CartMapper;
 import ru.yandex.practicum.model.ChangeProductQuantityRequest;
 import ru.yandex.practicum.repository.CartRepository;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class CartService {
     private final CartRepository cartRepository;
     private final CartMapper mapper;
+    private final WarehouseFeignClient warehouseFeignClient;
 
     public ShoppingCartDto getShoppingCart(String username) {
         validateUser(username);
@@ -56,7 +58,12 @@ public class CartService {
         }
 
         cart.setProducts(currentProducts);
-        return mapper.toDto(cart);
+
+        ShoppingCartDto dtoForCheck = mapper.toDto(cart);
+        warehouseFeignClient.checkProductQuantityEnoughForShoppingCart(dtoForCheck);
+
+        CartEntity savedCart = cartRepository.save(cart);
+        return mapper.toDto(savedCart);
     }
 
     @Transactional

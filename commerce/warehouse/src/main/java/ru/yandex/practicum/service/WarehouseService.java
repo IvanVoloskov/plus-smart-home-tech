@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.AddressDto;
+import ru.yandex.practicum.dto.AssemblyProductsForOrderRequest;
 import ru.yandex.practicum.dto.BookedProductsDto;
 import ru.yandex.practicum.dto.DimensionDto;
+import ru.yandex.practicum.dto.ShippedToDeliveryRequest;
 import ru.yandex.practicum.dto.ShoppingCartDto;
+import ru.yandex.practicum.entity.OrderBookingEntity;
 import ru.yandex.practicum.entity.WarehouseEntity;
 import ru.yandex.practicum.exception.NoSpecifiedProductInWarehouseException;
 import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
@@ -14,11 +17,14 @@ import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException
 import ru.yandex.practicum.mapper.WarehouseMapper;
 import ru.yandex.practicum.model.AddProductToWarehouseRequest;
 import ru.yandex.practicum.model.NewProductInWarehouseRequest;
+import ru.yandex.practicum.repository.OrderBookingRepository;
 import ru.yandex.practicum.repository.WarehouseRepository;
 
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +32,8 @@ import java.util.UUID;
 public class WarehouseService {
     private final WarehouseRepository repository;
     private final WarehouseMapper mapper;
+    private final OrderBookingRepository orderBookingRepository;
+    private final WarehouseRepository warehouseRepository;
 
     private static final String[] ADDRESSES = new String[]{"ADDRESS_1", "ADDRESS_2"};
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -93,6 +101,89 @@ public class WarehouseService {
 
         warehouseProduct.setQuantity(warehouseProduct.getQuantity() + request.getQuantity());
         repository.save(warehouseProduct);
+    }
+
+    @Transactional
+    public BookedProductsDto assemblyProductsForOrder(AssemblyProductsForOrderRequest request) {
+        Map<UUID, Long> products = request.getProducts();
+        if (products == null || products.isEmpty()) {
+            throw new ProductInShoppingCartLowQuantityInWarehouse("Список товаров для сборки пуст");
+        }
+
+        Map<UUID, WarehouseEntity> warehouseByProductId = repository
+                .findAllByProductIdIn(products.keySet())
+                .stream()
+                .collect(Collectors.toMap(WarehouseEntity::getProductId, Function.identity()));
+
+        double totalWeight = 0;
+        double totalVolume = 0;
+        boolean hasFragile = false;
+
+        for (Map.Entry<UUID, Long> entry : products.entrySet()) {
+            UUID productId = entry.getKey();
+            Long requiredQuantity = entry.getValue();
+
+            WarehouseEntity product = warehouseByProductId.get(productId);
+            if (product == null) {
+                throw new NoSpecifiedProductInWarehouseException("Товар не найден на складе: " + productId);
+            }
+            if (product.getQuantity() < requiredQuantity) {
+                throw new ProductInShoppingCartLowQuantityInWarehouse(
+                        "Недостаточное количество товара: " + productId);
+            }
+
+            product.setQuantity(product.getQuantity() - requiredQuantity);
+
+            totalWeight += product.getWeight() * requiredQuantity;
+            DimensionDto d = product.getDimension();
+            totalVolume += d.getWidth() * d.getHeight() * d.getDepth() * requiredQuantity;
+            if (product.isFragile()) {
+                hasFragile = true;
+            }
+        }
+
+        repository.saveAll(warehouseByProductId.values());
+
+        OrderBookingEntity booking = new OrderBookingEntity();
+        booking.setOrderId(request.getOrderId());
+        booking.setProducts(products);
+        booking.setDeliveryWeight(totalWeight);
+        booking.setDeliveryVolume(totalVolume);
+        booking.setFragile(hasFragile);
+        orderBookingRepository.save(booking);
+
+        return BookedProductsDto.builder()
+                .deliveryWeight(totalWeight)
+                .deliveryVolume(totalVolume)
+                .fragile(hasFragile)
+                .build();
+    }
+
+    @Transactional
+    public void shippedToDelivery(ShippedToDeliveryRequest request) {
+        OrderBookingEntity booking = orderBookingRepository.findByOrderId(request.getOrderId())
+                .orElseThrow(() -> new NoSpecifiedProductInWarehouseException(
+                        "Бронь для заказа не найдена: " + request.getOrderId()));
+        booking.setDeliveryId(request.getDeliveryId());
+        orderBookingRepository.save(booking);
+    }
+
+    @Transactional
+    public void returnProducts(Map<UUID, Long> products) {
+        Map<UUID, WarehouseEntity> warehouseByProductId = warehouseRepository
+                .findAllByProductIdIn(products.keySet())
+                .stream()
+                .collect(Collectors.toMap(WarehouseEntity::getProductId, Function.identity()));
+
+        for (Map.Entry<UUID, Long> entry : products.entrySet()) {
+            WarehouseEntity product = warehouseByProductId.get(entry.getKey());
+            if (product == null) {
+                throw new NoSpecifiedProductInWarehouseException("Товар не найден на складе: " + entry.getKey());
+            }
+            product.setQuantity(product.getQuantity() + entry.getValue());
+        }
+
+        warehouseRepository.saveAll(warehouseByProductId.values());
     }
 
     public AddressDto getWarehouseAddress() {
