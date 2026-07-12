@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookedProductsDto {
-    double deliveryWeight; // Общий вес доставки
-    double deliveryVolume; // Общие объём доставки
-    boolean fragile; // Есть ли хрупкие вещи в доставке
+    private double deliveryWeight; // Общий вес доставки
+    private double deliveryVolume; // Общие объём доставки
+    private boolean fragile; // Есть ли хрупкие вещи в доставке
 }

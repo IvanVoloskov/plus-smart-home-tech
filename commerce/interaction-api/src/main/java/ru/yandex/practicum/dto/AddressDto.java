@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressDto {
-    String country;
-    String city;
-    String street;
-    String house;
-    String flat;
+    private String country;
+    private String city;
+    private String street;
+    private String house;
+    private String flat;
 }

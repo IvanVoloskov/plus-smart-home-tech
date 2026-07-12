@@ -13,6 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShoppingCartDto {
-    UUID shoppingCartId;
-    Map<UUID, Long> products;  // productId → quantity
+    private UUID shoppingCartId;
+    private Map<UUID, Long> products;  // productId → quantity
 }
