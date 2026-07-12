@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.yandex.practicum.model.PaymentState;
 
 import java.math.BigDecimal;
@@ -16,7 +18,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "payments")
-@Data
+@Getter
+@Setter
 public class PaymentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

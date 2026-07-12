@@ -33,7 +33,6 @@ public class WarehouseService {
     private final WarehouseRepository repository;
     private final WarehouseMapper mapper;
     private final OrderBookingRepository orderBookingRepository;
-    private final WarehouseRepository warehouseRepository;
 
     private static final String[] ADDRESSES = new String[]{"ADDRESS_1", "ADDRESS_2"};
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -145,6 +144,10 @@ public class WarehouseService {
 
             totalWeight += product.getWeight() * requiredQuantity;
             DimensionDto d = product.getDimension();
+            if (d == null) {
+                throw new NoSpecifiedProductInWarehouseException(
+                        "У товара " + productId + " не заданы габариты");
+            }
             totalVolume += d.getWidth() * d.getHeight() * d.getDepth() * requiredQuantity;
             if (product.isFragile()) {
                 hasFragile = true;
@@ -179,7 +182,7 @@ public class WarehouseService {
 
     @Transactional
     public void returnProducts(Map<UUID, Long> products) {
-        Map<UUID, WarehouseEntity> warehouseByProductId = warehouseRepository
+        Map<UUID, WarehouseEntity> warehouseByProductId = repository
                 .findAllByProductIdIn(products.keySet())
                 .stream()
                 .collect(Collectors.toMap(WarehouseEntity::getProductId, Function.identity()));
@@ -192,7 +195,7 @@ public class WarehouseService {
             product.setQuantity(product.getQuantity() + entry.getValue());
         }
 
-        warehouseRepository.saveAll(warehouseByProductId.values());
+        repository.saveAll(warehouseByProductId.values());
     }
 
     public AddressDto getWarehouseAddress() {

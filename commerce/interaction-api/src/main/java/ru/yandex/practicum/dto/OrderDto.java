@@ -14,16 +14,16 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDto {
-    UUID orderId;
-    UUID shoppingCartId;
-    Map<UUID, Long> products;
-    UUID paymentId;
-    UUID deliveryId;
-    OrderState state;
-    Double deliveryWeight;
-    Double deliveryVolume;
-    Boolean fragile;
-    BigDecimal totalPrice;
-    BigDecimal deliveryPrice;
-    BigDecimal productPrice;
+    private UUID orderId;
+    private UUID shoppingCartId;
+    private Map<UUID, Long> products;
+    private UUID paymentId;
+    private UUID deliveryId;
+    private OrderState state;
+    private Double deliveryWeight;
+    private Double deliveryVolume;
+    private Boolean fragile;
+    private BigDecimal totalPrice;
+    private BigDecimal deliveryPrice;
+    private BigDecimal productPrice;
 }

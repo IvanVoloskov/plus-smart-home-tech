@@ -12,7 +12,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.yandex.practicum.dto.OrderState;
 
 import java.math.BigDecimal;
@@ -22,7 +23,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
-@Data
+@Getter
+@Setter
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

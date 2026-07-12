@@ -13,12 +13,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductDto {
-    UUID productId;
-    String productName;
-    String description;
-    String imageSrc;
-    QuantityState quantityState;
-    ProductState productState;
-    ProductCategory productCategory;
-    BigDecimal price;
+    private UUID productId;
+    private String productName;
+    private String description;
+    private String imageSrc;
+    private QuantityState quantityState;
+    private ProductState productState;
+    private ProductCategory productCategory;
+    private BigDecimal price;
 }

@@ -13,8 +13,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentDto {
-    UUID paymentId; // Идентификатор оплаты
-    BigDecimal totalPayment; // Общая стоимость
-    BigDecimal deliveryTotal; // стоимость доставки
-    BigDecimal feeTotal; // стоимость налога
+    private UUID paymentId; // Идентификатор оплаты
+    private BigDecimal totalPayment; // Общая стоимость
+    private BigDecimal deliveryTotal; // стоимость доставки
+    private BigDecimal feeTotal; // стоимость налога
 }

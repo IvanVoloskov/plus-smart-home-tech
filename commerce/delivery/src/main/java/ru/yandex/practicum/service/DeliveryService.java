@@ -74,13 +74,16 @@ public class DeliveryService {
 
     }
 
-    @Transactional
     public void deliverySuccessful(UUID orderId) {
-        DeliveryEntity delivery = getByOrderIdOrThrow(orderId);
-
-        delivery.setDeliveryState(DeliveryState.DELIVERED);
-        repository.save(delivery);
+        updateDeliveryState(orderId, DeliveryState.DELIVERED);
         orderFeignClient.delivery(orderId);
+    }
+
+    @Transactional
+    protected void updateDeliveryState(UUID orderId, DeliveryState state) {
+        DeliveryEntity delivery = getByOrderIdOrThrow(orderId);
+        delivery.setDeliveryState(state);
+        repository.save(delivery);
     }
 
     @Transactional

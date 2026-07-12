@@ -12,9 +12,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeliveryDto {
-    UUID deliveryId;
-    AddressDto fromAddress;
-    AddressDto toAddress;
-    UUID orderId;
-    DeliveryState deliveryState;
+    private UUID deliveryId;
+    private AddressDto fromAddress;
+    private AddressDto toAddress;
+    private UUID orderId;
+    private DeliveryState deliveryState;
 }

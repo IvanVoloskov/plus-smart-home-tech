@@ -13,6 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AssemblyProductsForOrderRequest {
-    UUID orderId;
-    Map<UUID, Long> products;
+    private UUID orderId;
+    private Map<UUID, Long> products;
 }

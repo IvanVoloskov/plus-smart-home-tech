@@ -11,15 +11,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
-import ru.yandex.practicum.dto.AddressDto;
+import lombok.Getter;
+import lombok.Setter;
 import ru.yandex.practicum.dto.DeliveryState;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "delivery")
-@Data
+@Getter
+@Setter
 public class DeliveryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -39,7 +40,7 @@ public class DeliveryEntity {
             @AttributeOverride(name = "house", column = @Column(name = "from_house")),
             @AttributeOverride(name = "flat", column = @Column(name = "from_flat"))
     })
-    private AddressDto fromAddress;
+    private Address fromAddress;
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "country", column = @Column(name = "to_country")),
@@ -48,7 +49,7 @@ public class DeliveryEntity {
             @AttributeOverride(name = "house", column = @Column(name = "to_house")),
             @AttributeOverride(name = "flat", column = @Column(name = "to_flat"))
     })
-    private AddressDto toAddress;
+    private Address toAddress;
     @Enumerated(EnumType.STRING)
     @Column(name = "delivery_state")
     private DeliveryState deliveryState;
