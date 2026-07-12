@@ -16,8 +16,8 @@ public class DeliveryMapper {
 
         return DeliveryDto.builder()
                 .deliveryId(delivery.getDeliveryId())
-                .fromAddress(delivery.getFromAddress())
-                .toAddress(delivery.getToAddress())
+                .fromAddress(toAddressDto(delivery.getFromAddress()))
+                .toAddress(toAddressDto(delivery.getToAddress()))
                 .orderId(delivery.getOrderId())
                 .deliveryState(delivery.getDeliveryState())
                 .build();
@@ -28,8 +28,8 @@ public class DeliveryMapper {
         delivery.setDeliveryId(deliveryDto.getDeliveryId());
         delivery.setOrderId(deliveryDto.getOrderId());
         delivery.setDeliveryState(deliveryDto.getDeliveryState());
-        delivery.setFromAddress(deliveryDto.getFromAddress());
-        delivery.setToAddress(deliveryDto.getToAddress());
+        delivery.setFromAddress(toAddress(deliveryDto.getFromAddress()));
+        delivery.setToAddress(toAddress(deliveryDto.getToAddress()));
         return delivery;
     }
 
